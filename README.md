@@ -1,120 +1,105 @@
-# Voice List — Voice Command Shopping Assistant
+# 🛒 Voice Grocery — Voice-Controlled Shopping Assistant
 
-A voice-controlled shopping list that understands flexible phrasing in
-**English, Hindi, and Spanish**, gives smart/seasonal/substitute suggestions,
-and runs entirely in the browser — no backend, no API keys, no rate limits.
+A fast, minimalist grocery shopping assistant built with Next.js and the Web Speech API. It recognizes natural voice commands in **English, Hindi (हिंदी), and Spanish (Español)**, auto-categorizes items, handles pricing in Indian Rupees (Rs.), provides seasonal/substitute recommendations, and works completely offline with an optional Gemini AI mode.
 
-## Live features → assignment requirements
+🔗 **Live Demo:** [https://voice-command-groceryl-ist.vercel.app](https://voice-command-groceryl-ist.vercel.app)
 
-| Assignment requirement | Where it lives |
-|---|---|
-| Voice command recognition | `VoiceButton.tsx` (Web Speech API) |
-| NLP for varied phrasing | `lib/nlp.ts` — keyword + alias matching, not rigid regex |
-| Multilingual voice input | `lib/nlp.ts` dictionaries + language picker in `VoiceButton.tsx` |
-| Product recommendations / "running low" | `lib/suggestions.ts` → `getRestockSuggestions` |
-| Seasonal recommendations | `lib/suggestions.ts` → `getSeasonalSuggestions` |
-| Substitutes when out of stock | `data/catalog.ts` (`substituteId`) + `getSubstituteSuggestions` |
-| Add / remove / modify by voice | `lib/store.tsx` + `lib/nlp.ts` |
-| Auto-categorization | Every `Product` has a fixed `category`; custom items default to "Miscellaneous" |
-| Quantity by voice ("2 bottles of water") | `extractQuantity()` in `lib/nlp.ts` |
-| Voice search + price filtering | `SearchResults.tsx` + `extractPriceFilter()` |
-| Minimalist UI, visual feedback | Single-column chalkboard-styled list, live feedback bubble under the mic |
-| Loading states | Spinner while parsing, spinner on initial list load |
-| Mobile / voice-first | Fixed bottom mic button, responsive single-column layout |
+---
 
-## Why no paid AI API — and how the optional AI mode works
+## ✨ Features
 
-The app ships with a rule-based NLP engine (`src/lib/nlp.ts`) as its
-**default and always-available** path: dictionaries of intent words and item
-aliases per language, plus regex for quantities and prices. Zero setup,
-never fails, works offline.
+- 🎙️ **Multilingual Voice Recognition:** Add, remove, clear, or search grocery items by voice in English, Hindi, or Spanish.
+- 🍏 **Apple-Inspired Minimalist UI:** Frosted glass cards, smooth squircle corners, tactile quantity steppers, and a floating Dynamic Island voice control bar.
+- 📦 **Smart Auto-Categorization & Custom Items:** Catalog items are automatically grouped into Produce, Dairy & Eggs, Bakery, Pantry, Beverages, Snacks, etc. Custom or unrecognized items default directly to **Miscellaneous**.
+- 🇮🇳 **Indian Rupee (Rs.) Pricing & Price Filters:** Realistic grocery pricing and voice-based price filtering (e.g., *"find snacks under Rs. 50"*, *"items between 50 and 100 rupees"*).
+- 🔄 **Smart Recommendations:**
+  - **In-Season Picks:** Suggests fruits/vegetables currently in season.
+  - **Restock Reminders:** Tracks frequently purchased groceries.
+  - **Smart Substitutes:** Automatically suggests alternatives when an item is out of stock (e.g. Whole Milk → Almond Milk).
+- ✍️ **Quick Add Bar:** Quickly type custom groceries directly with a category picker without needing to use the mic.
+- ⚡ **Offline-First with Optional Gemini AI Mode:**
+  - **Default (Offline):** Instant rule-based dictionary & regex NLP engine running directly in the browser with zero latency and zero API dependencies.
+  - **AI Mode (Optional):** Add a free Google Gemini API key in Settings for richer conversational phrasing. Automatically falls back to offline parser on any timeout or rate limit.
 
-On top of that, there's an **optional AI mode**: open the settings gear in
-the header and paste a free Gemini API key (get one at
-[aistudio.google.com/apikey](https://aistudio.google.com/apikey) — no
-credit card required for the Flash/Flash-Lite free tier). When a key is
-present, each voice command is first sent to `/api/nlp`
-(`src/app/api/nlp/route.ts`), a server route that calls Gemini for richer
-phrase understanding and only that request round-trip. If the key is
-missing, invalid, rate-limited, or the request times out (6s) or fails for
-any reason, the app **silently falls back** to the offline parser — the
-user never sees an error, they just get a slightly less flexible match.
+---
 
-The key is stored only in the browser's `localStorage` and sent only to
-your own `/api/nlp` route, which forwards it only to Google — it is never
-committed to the repo or hardcoded anywhere.
+## 🛠️ Tech Stack
 
-**A word of caution if you go looking for a key elsewhere:** don't use API
-keys posted in public GitHub repos or key-sharing lists. Those are almost
-always leaked/stolen credentials (which Google actively revokes within
-hours) or a way to get you to paste secrets into a compromised project.
-Get your own free key directly from Google AI Studio — it takes under a
-minute and carries no billing risk.
+- **Framework:** Next.js 15 (App Router)
+- **UI & Styling:** React 19, Tailwind CSS v4, Lucide Icons
+- **Language:** TypeScript
+- **Voice & Audio:** Web Speech API (`webkitSpeechRecognition` & `SpeechSynthesis`)
+- **AI Engine (Optional):** `@google/generative-ai` (Gemini Flash)
+- **Persistence:** Browser `localStorage`
 
-If you want to swap in a different LLM later, `src/app/api/nlp/route.ts`
-is the only file that needs to change — the response contract it returns
-to the client stays the same.
+---
 
-## Running locally
+## 🚀 Getting Started
+
+### Prerequisites
+Make sure you have Node.js (v18+) installed.
+
+### Installation
 
 ```bash
+git clone https://github.com/Belal-dev112/voice-command-groceryl-ist.git
+cd voice-command-groceryl-ist
 npm install
+```
+
+### Run Locally
+
+```bash
 npm run dev
 ```
 
-Open `http://localhost:3000` in **Chrome or Edge** (Web Speech API support
-varies — Safari and Firefox have limited/no support for `SpeechRecognition`).
-Allow microphone access when prompted.
+Open [http://localhost:3000](http://localhost:3000) in Chrome, Edge, or any browser supporting the Web Speech API and allow microphone permissions when prompted.
 
-Try saying:
-- "Add two apples"
-- "I need milk" (this one is flagged out-of-stock in the demo catalog, so
-  you'll hear it swap in almond milk automatically — that's the substitute
-  feature)
-- "Remove bread"
-- "Find snacks under Rs. 50"
-- "Clear my list"
-- Switch the language pill to हिंदी or Español and try "दूध जोड़ो" or "necesito pan"
+---
 
-## Deployment (free tier)
+## 🎤 Example Voice Commands
 
-This app has **no server-side code or secrets**, so hosting is a one-step
-static/SSR deploy:
+| Intent | Example Commands |
+|---|---|
+| **Add item** | *"Add 2 apples"*, *"I need whole milk"*, *"Buy potato chips"* |
+| **Remove item** | *"Remove bread"*, *"Delete apples from my list"* |
+| **Price search** | *"Find snacks under Rs. 50"*, *"Show me items under 100 rupees"* |
+| **Clear list** | *"Clear my list"*, *"Empty cart"* |
+| **Hindi (हिंदी)** | *"दूध जोड़ो"*, *"दो सेब चाहिए"*, *"50 रुपये से कम के स्नैक्स दिखाओ"* |
+| **Spanish (Español)** | *"Añade dos manzanas"*, *"Necesito pan"*, *"Busca aperitivos"* |
 
-1. Push this repo to GitHub.
-2. Go to [vercel.com](https://vercel.com), "Add New Project", import the repo.
-3. Leave all settings default (Next.js is auto-detected) and click Deploy.
-4. Done — no environment variables needed.
+---
 
-(Netlify or Firebase Hosting work the same way with their Next.js presets.)
+## 📁 Project Structure
 
-## Approach (200 words)
+```
+├── src/
+│   ├── app/
+│   │   ├── api/nlp/route.ts       # Optional Gemini AI fallback route
+│   │   ├── globals.css            # Apple-style glassmorphism & design system
+│   │   ├── layout.tsx             # Root layout & Google Fonts
+│   │   └── page.tsx               # Main grocery dashboard
+│   ├── components/
+│   │   ├── SearchResults.tsx      # Voice search results card
+│   │   ├── SettingsPanel.tsx      # Gemini API key settings sheet
+│   │   ├── ShoppingList.tsx       # Grouped grocery list & steppers
+│   │   ├── Suggestions.tsx        # Smart grocery recommendation shelf
+│   │   └── VoiceButton.tsx        # Dynamic Island floating mic bar
+│   ├── data/
+│   │   └── catalog.ts             # Grocery items, aliases (EN/HI/ES), & Rs. prices
+│   ├── lib/
+│   │   ├── nlp.ts                 # Multilingual dictionary & regex parser
+│   │   ├── store.tsx              # Cart state & localStorage sync
+│   │   └── suggestions.ts         # Restock, seasonal & substitute logic
+│   └── types/
+│       ├── index.ts               # Core TypeScript interfaces & Category union
+│       └── speech.d.ts            # Web Speech API definitions
+├── vercel.json                    # Vercel deployment configuration
+└── package.json
+```
 
-I built a voice shopping assistant with a reliable offline core and an
-optional AI layer on top, rather than depending entirely on a hosted LLM.
-The default path is a compact rule-based NLP engine matching transcripts
-against per-language keyword and alias dictionaries — instant, free, and
-immune to network or rate-limit failures. Users who want richer phrase
-understanding can paste their own free Gemini API key in Settings; each
-command is then sent to a server route that calls Gemini first and
-silently falls back to the offline parser on any error, timeout, or missing
-key, so the feature only ever adds capability and never introduces a
-failure mode.
+---
 
-Multilingual support works the same way at both layers: English, Hindi,
-and Spanish each have their own intent-keyword and product-alias lists (or,
-in AI mode, Gemini is instructed to detect and respond in the transcript's
-language), and the Web Speech API is pointed at the selected language for
-recognition and speech synthesis. Smart suggestions come from three simple,
-explainable sources: a purchase-history counter (restock reminders), a
-calendar lookup (seasonal picks), and a static substitute mapping used when
-an item is marked out of stock.
+## 📄 License
 
-The UI is a single-column, voice-first layout: a persistent mic button, a
-live transcript/feedback bubble, and a categorized list. State persists to
-`localStorage`, so it survives a refresh without any backend.
-
-## Tech stack
-
-Next.js (App Router) · React · TypeScript · Tailwind CSS v4 · Web Speech API
-· `localStorage` for persistence · zero external services
+MIT License. Open source and free to use.
