@@ -1,17 +1,17 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { Mic, Square, Loader2, Sparkles } from "lucide-react";
+import { Mic, Square, Loader2, Sparkles, Volume2 } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { parseTranscript } from "@/lib/nlp";
 import { LangCode, ParsedCommand, PriceFilter, Product } from "@/types";
 import { findProductById } from "@/data/catalog";
 import { SpeechRecognitionLike } from "@/types/speech";
 
-const LANGUAGES: { code: LangCode; label: string }[] = [
-  { code: "en-US", label: "English" },
-  { code: "hi-IN", label: "हिंदी" },
-  { code: "es-ES", label: "Español" },
+const LANGUAGES: { code: LangCode; label: string; short: string }[] = [
+  { code: "en-US", label: "English", short: "EN" },
+  { code: "hi-IN", label: "हिंदी", short: "HI" },
+  { code: "es-ES", label: "Español", short: "ES" },
 ];
 
 const AI_TIMEOUT_MS = 6000;
@@ -111,7 +111,7 @@ export default function VoiceButton({ apiKey, onSearchResults }: VoiceButtonProp
 
   const handleCommand = async (text: string) => {
     setIsProcessing(true);
-    setFeedback("Thinking...");
+    setFeedback("Thinking…");
     setUsedAi(false);
 
     let parsed: Omit<ParsedCommand, "rawTranscript"> | null = null;
@@ -131,19 +131,19 @@ export default function VoiceButton({ apiKey, onSearchResults }: VoiceButtonProp
     switch (parsed.action) {
       case "CLEAR": {
         clearList();
-        message = "Cleared your whole list.";
+        message = "Cleared your entire grocery list.";
         break;
       }
       case "REMOVE": {
         const targetName = parsed.matchedProduct?.name ?? parsed.customName;
         const removed = targetName ? removeByName(targetName) : false;
-        message = removed ? `Removed ${targetName} from your list.` : "I couldn't find that on your list.";
+        message = removed ? `Removed ${targetName} from your list.` : `Couldn't find "${targetName}" on your list.`;
         break;
       }
       case "SEARCH": {
         const q = parsed.matchedProduct?.name ?? parsed.query ?? "";
         onSearchResults(q, parsed.priceFilter);
-        message = parsed.priceFilter ? `Here's what I found in that price range.` : `Here's what I found for "${q}".`;
+        message = parsed.priceFilter ? `Found grocery items in that price range.` : `Found results for "${q}".`;
         break;
       }
       case "ADD":
@@ -154,17 +154,17 @@ export default function VoiceButton({ apiKey, onSearchResults }: VoiceButtonProp
             const sub = findProductById(product.substituteId);
             if (sub) {
               addProduct(sub, parsed.quantity, "voice");
-              message = `${product.name} is out of stock — I added ${sub.name} instead.`;
+              message = `${product.name} is out of stock — added ${sub.name} instead.`;
               break;
             }
           }
           addProduct(product, parsed.quantity, "voice");
-          message = `Added ${parsed.quantity} ${product.name} to your list.`;
+          message = `Added ${parsed.quantity} ${product.name}.`;
         } else if (parsed.customName) {
-          addCustomItem(parsed.customName, parsed.quantity);
-          message = `Added "${parsed.customName}" to your list.`;
+          addCustomItem(parsed.customName, parsed.quantity, "Miscellaneous", "voice");
+          message = `Added "${parsed.customName}" to Miscellaneous.`;
         } else {
-          message = "I didn't catch an item name — try again.";
+          message = "Didn't catch an item name — please try again.";
         }
       }
     }
@@ -175,7 +175,7 @@ export default function VoiceButton({ apiKey, onSearchResults }: VoiceButtonProp
     setTimeout(() => {
       setFeedback("");
       setTranscript("");
-    }, 4000);
+    }, 4500);
   };
 
   const toggleListening = () => {
@@ -196,88 +196,122 @@ export default function VoiceButton({ apiKey, onSearchResults }: VoiceButtonProp
 
   if (!supported) {
     return (
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 chalk-card px-5 py-3 text-sm text-[var(--color-coral)]">
-        Voice input isn&apos;t supported in this browser. Try Chrome or Edge.
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 apple-card px-5 py-3 text-xs sm:text-sm text-rose-400 bg-black/90 border border-rose-500/20 shadow-2xl z-50">
+        Voice recognition is supported in Chrome, Edge, and modern browsers.
       </div>
     );
   }
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 z-40 px-4">
-      {/* Language picker */}
-      <div className="flex items-center gap-2">
-        <div className="flex gap-1.5 chalk-card px-2 py-1.5">
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 z-40 px-4 w-full max-w-md pointer-events-none">
+      {/* Live Voice Feedback Pill / Dynamic Island Expansion */}
+      <div
+        className={`transition-all duration-300 w-full pointer-events-auto ${
+          feedback || transcript || listening || isProcessing
+            ? "opacity-100 translate-y-0 scale-100"
+            : "opacity-0 translate-y-4 scale-95 pointer-events-none"
+        }`}
+      >
+        <div className="dynamic-island-container px-5 py-3.5 text-center text-white border border-emerald-500/30 shadow-2xl flex items-center justify-center gap-3">
+          {listening && !transcript && (
+            <div className="flex items-center gap-3">
+              {/* Apple Audio Waveform */}
+              <div className="flex items-center gap-1 h-5">
+                <span className="w-1 bg-emerald-400 rounded-full wave-bar-1" />
+                <span className="w-1 bg-emerald-400 rounded-full wave-bar-2" />
+                <span className="w-1 bg-emerald-400 rounded-full wave-bar-3" />
+                <span className="w-1 bg-emerald-400 rounded-full wave-bar-4" />
+                <span className="w-1 bg-emerald-400 rounded-full wave-bar-5" />
+              </div>
+              <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">
+                Listening…
+              </span>
+            </div>
+          )}
+
+          {transcript && !isProcessing && (
+            <span className="text-xs sm:text-sm font-medium text-white/90 truncate max-w-xs">
+              &ldquo;{transcript}&rdquo;
+            </span>
+          )}
+
+          {isProcessing && (
+            <div className="flex items-center gap-2 text-emerald-400 text-xs sm:text-sm font-medium">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Processing voice command…</span>
+            </div>
+          )}
+
+          {!isProcessing && !transcript && feedback && (
+            <div className="flex items-center gap-2">
+              <Volume2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              <span className="text-xs sm:text-sm font-medium text-white/95">
+                {feedback}
+              </span>
+              {usedAi && (
+                <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 text-[10px] font-bold tracking-wider uppercase font-mono">
+                  AI
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Floating Apple Mic Bar */}
+      <div className="dynamic-island-container p-2 flex items-center gap-2 pointer-events-auto border border-white/10 shadow-2xl">
+        {/* Language Switcher Capsule */}
+        <div className="flex bg-black/40 rounded-full p-1 border border-white/[0.06]">
           {LANGUAGES.map((l) => (
             <button
               key={l.code}
               onClick={() => setLang(l.code)}
-              className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
                 lang === l.code
-                  ? "bg-[var(--color-amber)] text-[var(--color-board)]"
-                  : "text-[var(--color-chalk-dim)] hover:text-[var(--color-chalk)]"
+                  ? "bg-white text-black shadow-md shadow-white/10 font-bold"
+                  : "text-white/50 hover:text-white"
               }`}
             >
-              {l.label}
+              {l.short}
             </button>
           ))}
         </div>
+
+        {/* AI status badge */}
         {apiKey && (
           <span
-            title="Gemini AI mode is on — offline parser is the automatic fallback"
-            className="flex items-center gap-1 chalk-card px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--color-sage)]"
+            title="Gemini AI mode active with automatic offline fallback"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 text-[11px] font-semibold"
           >
-            <Sparkles className="w-3 h-3" /> AI on
+            <Sparkles className="w-3 h-3" /> AI
           </span>
         )}
-      </div>
 
-      {/* Feedback bubble */}
-      <div
-        className={`transition-all duration-300 ${
-          feedback || transcript || listening ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"
-        }`}
-      >
-        <div className="chalk-card px-6 py-3 max-w-xs sm:max-w-sm text-center font-display text-lg leading-snug">
-          {listening && !transcript && <span className="text-[var(--color-sage)]">Listening…</span>}
-          {transcript && !isProcessing && <span>&ldquo;{transcript}&rdquo;</span>}
-          {isProcessing && (
-            <span className="flex items-center justify-center gap-2 text-[var(--color-amber)]">
-              <Loader2 className="w-5 h-5 animate-spin" /> Thinking…
-            </span>
+        {/* Glowing Apple Mic Trigger Button */}
+        <div className="relative">
+          {listening && (
+            <span
+              className="absolute inset-[-4px] rounded-full bg-emerald-500/30 apple-mic-active"
+              aria-hidden
+            />
           )}
-          {!isProcessing && !transcript && feedback && (
-            <span>
-              {feedback}
-              {usedAi && <span className="block text-[10px] text-[var(--color-sage)] mt-1 uppercase tracking-wide">via Gemini</span>}
-            </span>
-          )}
+          <button
+            onClick={toggleListening}
+            disabled={isProcessing}
+            aria-label={listening ? "Stop listening" : "Start voice command"}
+            className={`relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 shadow-xl ${
+              listening
+                ? "bg-rose-500 hover:bg-rose-400 text-white scale-105"
+                : "bg-emerald-500 hover:bg-emerald-400 text-black hover:scale-105 active:scale-95 shadow-emerald-500/25"
+            } ${isProcessing ? "opacity-60 cursor-not-allowed" : ""}`}
+          >
+            {listening ? (
+              <Square className="w-4 h-4 fill-current" />
+            ) : (
+              <Mic className="w-5 h-5 stroke-[2.5]" />
+            )}
+          </button>
         </div>
-      </div>
-
-      {/* Mic button with hand-sketched chalk ring */}
-      <div className="relative">
-        {listening && (
-          <span
-            className="absolute inset-[-8px] rounded-full border-2 border-dashed border-[var(--color-sage)] chalk-ring"
-            aria-hidden
-          />
-        )}
-        <button
-          onClick={toggleListening}
-          disabled={isProcessing}
-          aria-label={listening ? "Stop listening" : "Start voice command"}
-          className={`relative w-20 h-20 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
-            listening
-              ? "bg-[var(--color-sage)] border-[var(--color-chalk)] scale-105"
-              : "bg-[var(--color-board-light)] border-dashed border-[var(--color-chalk-dim)] hover:border-[var(--color-amber)]"
-          } ${isProcessing ? "opacity-60" : ""}`}
-        >
-          {listening ? (
-            <Square className="w-7 h-7 text-[var(--color-board)] fill-current" />
-          ) : (
-            <Mic className="w-8 h-8 text-[var(--color-chalk)]" />
-          )}
-        </button>
       </div>
     </div>
   );

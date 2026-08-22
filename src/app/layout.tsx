@@ -1,18 +1,27 @@
 import type { Metadata, Viewport } from "next";
-import { Kalam, Work_Sans } from "next/font/google";
+import { Plus_Jakarta_Sans, Inter } from "next/font/google";
 import "./globals.css";
 import { StoreProvider } from "@/lib/store";
 
-const kalam = Kalam({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-kalam" });
-const workSans = Work_Sans({ subsets: ["latin"], variable: "--font-work-sans" });
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-display",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-sans",
+});
 
 export const metadata: Metadata = {
-  title: "Voice List — Say it, don't type it",
-  description: "A voice-controlled shopping list assistant with smart, seasonal, and multilingual suggestions.",
+  title: "Voice Grocery — Say it, don't type it",
+  description: "Minimalist Apple-inspired voice grocery assistant with smart seasonal picks, substitutes, and multilingual voice recognition.",
 };
 
 export const viewport: Viewport = {
-  themeColor: "#1b2e23",
+  themeColor: "#090d0b",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -20,8 +29,10 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className={`${kalam.variable} ${workSans.variable} board-texture min-h-screen antialiased`}>
+    <html lang="en" className="dark">
+      <body
+        className={`${plusJakarta.variable} ${inter.variable} font-sans bg-[#090d0b] text-[#f5f7f6] min-h-screen antialiased selection:bg-emerald-500/30 selection:text-emerald-200`}
+      >
         <StoreProvider>{children}</StoreProvider>
       </body>
     </html>

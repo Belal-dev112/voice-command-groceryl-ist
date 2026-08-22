@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { KeyRound, Check, Trash2, X } from "lucide-react";
+import { Sparkles, Check, Trash2, X, ShieldCheck, ExternalLink } from "lucide-react";
 
 const STORAGE_KEY = "voice_list_gemini_key";
 
@@ -9,7 +9,10 @@ export function useGeminiKey() {
   const [apiKey, setApiKeyState] = useState<string>("");
 
   useEffect(() => {
-    setApiKeyState(localStorage.getItem(STORAGE_KEY) ?? "");
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      setApiKeyState(saved);
+    }
   }, []);
 
   const setApiKey = (key: string) => {
@@ -31,6 +34,10 @@ export default function SettingsPanel({ apiKey, onSave, onClose }: SettingsPanel
   const [draft, setDraft] = useState(apiKey);
   const [saved, setSaved] = useState(false);
 
+  useEffect(() => {
+    setDraft(apiKey);
+  }, [apiKey]);
+
   const handleSave = () => {
     onSave(draft.trim());
     setSaved(true);
@@ -38,57 +45,81 @@ export default function SettingsPanel({ apiKey, onSave, onClose }: SettingsPanel
   };
 
   return (
-    <div className="chalk-card p-6 mb-8">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="font-display text-xl flex items-center gap-2">
-          <KeyRound className="w-4 h-4 text-[var(--color-amber)]" /> AI mode (optional)
-        </h3>
-        <button onClick={onClose} className="text-[var(--color-chalk-dim)] hover:text-[var(--color-chalk)]" aria-label="Close settings">
-          <X className="w-5 h-5" />
-        </button>
-      </div>
-      <p className="text-sm text-[var(--color-chalk-dim)] mb-4 leading-relaxed">
-        Paste a free Gemini API key to route voice commands through Google&apos;s
-        Gemini model for richer phrase understanding. Without a key, the app
-        uses its built-in offline parser — fully functional, just less
-        flexible with unusual phrasing. Get a free key at{" "}
-        <a
-          href="https://aistudio.google.com/apikey"
-          target="_blank"
-          rel="noreferrer"
-          className="text-[var(--color-sage)] underline"
-        >
-          aistudio.google.com/apikey
-        </a>
-        . Your key is stored only in this browser&apos;s local storage — never sent anywhere but Google.
-      </p>
-      <div className="flex gap-2">
-        <input
-          type="password"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          placeholder="AIzaSy..."
-          className="flex-1 px-4 py-2.5 bg-[var(--color-board)] border border-[var(--color-chalk-dim)]/30 rounded-lg text-sm outline-none focus:border-[var(--color-amber)]"
-        />
-        <button
-          onClick={handleSave}
-          className="px-5 py-2.5 bg-[var(--color-amber)] text-[var(--color-board)] font-semibold rounded-lg text-sm hover:opacity-90 flex items-center gap-2"
-        >
-          {saved ? <Check className="w-4 h-4" /> : null}
-          {saved ? "Saved" : "Save"}
-        </button>
-        {apiKey && (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="w-full max-w-lg apple-card p-6 sm:p-7 relative border border-white/10 shadow-2xl bg-[#121915]/95">
+        <div className="flex items-center justify-between pb-4 mb-4 border-b border-white/[0.08]">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="font-display font-semibold text-lg text-white">AI Voice Engine</h3>
+              <p className="text-xs text-white/50">Gemini-powered natural language processing</p>
+            </div>
+          </div>
           <button
-            onClick={() => {
-              setDraft("");
-              onSave("");
-            }}
-            className="px-3 py-2.5 text-[var(--color-coral)] hover:bg-[var(--color-coral)]/10 rounded-lg"
-            aria-label="Remove key and use offline mode"
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/60 hover:text-white transition-colors"
+            aria-label="Close settings"
           >
-            <Trash2 className="w-4 h-4" />
+            <X className="w-4 h-4" />
           </button>
-        )}
+        </div>
+
+        <p className="text-xs sm:text-sm text-white/70 mb-5 leading-relaxed">
+          Your voice assistant comes configured with Google Gemini for rich conversational understanding. If missing or rate-limited, it silently falls back to the ultra-fast offline parser.
+        </p>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-medium text-white/60 mb-2">
+              Gemini API Key
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="password"
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                placeholder="Paste API Key (e.g. AIzaSy... or AQ....)"
+                className="flex-1 px-4 py-2.5 bg-black/40 border border-white/10 rounded-2xl text-xs sm:text-sm text-white placeholder:text-white/25 outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/20 transition-all font-mono"
+              />
+              <button
+                onClick={handleSave}
+                className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold rounded-2xl text-xs sm:text-sm transition-all flex items-center gap-1.5 shadow-lg shadow-emerald-500/20 active:scale-95"
+              >
+                {saved ? <Check className="w-4 h-4" /> : null}
+                {saved ? "Saved" : "Save"}
+              </button>
+              {apiKey && (
+                <button
+                  onClick={() => {
+                    setDraft("");
+                    onSave("");
+                  }}
+                  className="px-3 py-2.5 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-2xl transition-colors"
+                  title="Clear key and use offline parser only"
+                  aria-label="Clear API key"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="pt-2 flex items-center justify-between text-xs text-white/40 border-t border-white/[0.06]">
+            <span className="flex items-center gap-1.5 text-emerald-400/80">
+              <ShieldCheck className="w-3.5 h-3.5" /> Stored locally in browser
+            </span>
+            <a
+              href="https://aistudio.google.com/apikey"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-white flex items-center gap-1 transition-colors"
+            >
+              Get Free Key <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   );

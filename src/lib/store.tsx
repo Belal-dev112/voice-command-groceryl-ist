@@ -1,14 +1,19 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { Product, ShoppingItem } from "@/types";
+import { Category, Product, ShoppingItem } from "@/types";
 
 interface StoreContextType {
   items: ShoppingItem[];
   purchaseHistory: Record<string, number>;
   loading: boolean;
   addProduct: (product: Product, quantity: number, addedVia: ShoppingItem["addedVia"]) => void;
-  addCustomItem: (name: string, quantity: number) => void;
+  addCustomItem: (
+    name: string,
+    quantity: number,
+    category?: Category,
+    addedVia?: ShoppingItem["addedVia"]
+  ) => void;
   removeById: (id: string) => void;
   removeByName: (name: string) => boolean;
   updateQuantity: (id: string, quantity: number) => void;
@@ -77,9 +82,16 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     recordHistory(product.id);
   };
 
-  const addCustomItem: StoreContextType["addCustomItem"] = (name, quantity) => {
+  const addCustomItem: StoreContextType["addCustomItem"] = (
+    name,
+    quantity,
+    category = "Miscellaneous",
+    addedVia = "voice"
+  ) => {
     setItems((prev) => {
-      const existing = prev.find((i) => !i.productId && i.name.toLowerCase() === name.toLowerCase());
+      const existing = prev.find(
+        (i) => !i.productId && i.name.toLowerCase() === name.toLowerCase()
+      );
       if (existing) {
         return prev.map((i) =>
           i.id === existing.id ? { ...i, quantity: i.quantity + quantity } : i
@@ -90,10 +102,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         {
           id: `custom_${Date.now()}`,
           name,
-          category: "Miscellaneous",
+          category,
           quantity,
           checked: false,
-          addedVia: "voice",
+          addedVia,
         },
       ];
     });
@@ -104,11 +116,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   };
 
   const removeByName: StoreContextType["removeByName"] = (name) => {
-    const lower = name.toLowerCase();
+    const lower = name.toLowerCase().trim();
     let found = false;
     setItems((prev) => {
       const match = prev.find(
-        (i) => i.name.toLowerCase().includes(lower) || lower.includes(i.name.toLowerCase())
+        (i) =>
+          i.name.toLowerCase().includes(lower) ||
+          lower.includes(i.name.toLowerCase())
       );
       if (!match) return prev;
       found = true;
