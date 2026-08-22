@@ -28,7 +28,7 @@ const HISTORY_KEY = "voice_list_history_v1";
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<ShoppingItem[]>([]);
   const [purchaseHistory, setPurchaseHistory] = useState<Record<string, number>>({});
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   // Load once on mount.
   useEffect(() => {

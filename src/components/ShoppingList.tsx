@@ -45,7 +45,7 @@ export default function ShoppingList() {
         </p>
 
         <div className="flex flex-wrap items-center justify-center gap-2 max-w-md">
-          {['"Add 2 apples"', '"I need whole milk"', '"Add paper towels"', '"Find snacks under $3"'].map(
+          {['"Add 2 apples"', '"I need whole milk"', '"Add paper towels"', '"Find snacks under Rs. 50"'].map(
             (phrase, idx) => (
               <span
                 key={idx}

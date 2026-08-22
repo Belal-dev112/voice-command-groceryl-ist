@@ -2,36 +2,33 @@ import { catalog } from "@/data/catalog";
 import { IntentAction, LangCode, ParsedCommand, PriceFilter, Product } from "@/types";
 
 /**
- * This is a rule-based (dictionary + regex) NLP engine rather than a call to
- * a hosted LLM. It runs entirely in the browser, works offline, costs
- * nothing, and never fails due to rate limits or network issues — trading a
- * little linguistic nuance for 100% reliability and zero setup. See README
- * for the reasoning.
+ * Rule-based (dictionary + regex) NLP engine.
+ * Supports multilingual grocery matching and flexible Indian Rupee (Rs.) / currency extraction.
  */
 
 // ---- 1. Intent keywords, per language -------------------------------------
 
 const CLEAR_WORDS: Record<LangCode, string[]> = {
-  "en-US": ["clear my list", "clear the list", "empty my list", "empty the list", "start over", "clear cart"],
-  "hi-IN": ["सूची खाली करो", "list khali karo", "list saaf karo"],
+  "en-US": ["clear my list", "clear the list", "empty my list", "empty the list", "start over", "clear cart", "delete everything"],
+  "hi-IN": ["सूची खाली करो", "list khali karo", "list saaf karo", "sab hatao", "puri list hatao"],
   "es-ES": ["vacía la lista", "borra la lista", "limpia la lista"],
 };
 
 const REMOVE_WORDS: Record<LangCode, string[]> = {
   "en-US": ["remove", "delete", "take off", "get rid of", "don't need"],
-  "hi-IN": ["हटाओ", "hatao", "nikaalo", "निकालो"],
+  "hi-IN": ["हटाओ", "hatao", "nikaalo", "निकालो", "kam karo"],
   "es-ES": ["quita", "elimina", "borra", "no necesito"],
 };
 
 const SEARCH_WORDS: Record<LangCode, string[]> = {
-  "en-US": ["find", "search for", "search", "look for", "show me", "is there"],
-  "hi-IN": ["ढूंढो", "dhoondo", "khojo", "खोजो"],
+  "en-US": ["find", "search for", "search", "look for", "show me", "is there", "items under", "snacks under"],
+  "hi-IN": ["ढूंढो", "dhoondo", "khojo", "खोजो", "dikhao", "दिखाओ"],
   "es-ES": ["busca", "encuentra", "muéstrame"],
 };
 
 const ADD_WORDS: Record<LangCode, string[]> = {
-  "en-US": ["add", "buy", "i need", "i want", "get me", "get", "put", "grab"],
-  "hi-IN": ["जोड़ो", "jodo", "चाहिए", "chahiye", "khareedo", "खरीदो"],
+  "en-US": ["add", "buy", "i need", "i want", "get me", "get", "put", "grab", "purchase"],
+  "hi-IN": ["जोड़ो", "jodo", "चाहिए", "chahiye", "khareedo", "खरीदो", "lao", "लाओ"],
   "es-ES": ["añade", "agrega", "necesito", "quiero", "compra"],
 };
 
@@ -43,7 +40,7 @@ const NUMBER_WORDS: Record<LangCode, Record<string, number>> = {
     six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
   },
   "hi-IN": {
-    ek: 1, do: 2, teen: 3, char: 4, paanch: 5, panch: 5,
+    ek: 1, do: 2, teen: 3, char: 4, paanch: 5, panch: 5, chhah: 6, saat: 7, aath: 8, nau: 9, das: 10,
   },
   "es-ES": {
     un: 1, una: 1, uno: 1, dos: 2, tres: 3, cuatro: 4, cinco: 5,
@@ -74,16 +71,22 @@ function extractQuantity(text: string, lang: LangCode): number {
 }
 
 function extractPriceFilter(text: string): PriceFilter | undefined {
-  // "between $5 and $10"
-  const between = text.match(/between\s*\$?(\d+(?:\.\d+)?)\s*(?:and|to)\s*\$?(\d+(?:\.\d+)?)/);
+  // "between Rs 50 and Rs 100" / "between 50 and 100 rupees"
+  const between = text.match(
+    /between\s*(?:rs\.?|₹|\$)?\s*(\d+(?:\.\d+)?)\s*(?:and|to)\s*(?:rs\.?|₹|\$)?\s*(\d+(?:\.\d+)?)/i
+  );
   if (between) return { min: parseFloat(between[1]), max: parseFloat(between[2]) };
 
-  // "under $5" / "below 5 dollars" / "less than 5"
-  const under = text.match(/(?:under|below|less than)\s*\$?(\d+(?:\.\d+)?)/);
+  // "under Rs 100" / "below 50 rupees" / "less than 60" / "under 50" / "50 se kam"
+  const under = text.match(
+    /(?:under|below|less than|se kam|kam)\s*(?:rs\.?|₹|\$)?\s*(\d+(?:\.\d+)?)(?:\s*(?:rupees|rs|rupaye))?/i
+  );
   if (under) return { max: parseFloat(under[1]) };
 
-  // "over $5" / "more than 5"
-  const over = text.match(/(?:over|above|more than)\s*\$?(\d+(?:\.\d+)?)/);
+  // "over Rs 50" / "more than 100" / "above 100"
+  const over = text.match(
+    /(?:over|above|more than|se zyada|zyada)\s*(?:rs\.?|₹|\$)?\s*(\d+(?:\.\d+)?)(?:\s*(?:rupees|rs|rupaye))?/i
+  );
   if (over) return { min: parseFloat(over[1]) };
 
   return undefined;
@@ -130,12 +133,16 @@ function matchProduct(text: string, lang: LangCode): Product | undefined {
 
 function stripKnownWords(text: string, lang: LangCode): string {
   const all = [
-    ...ADD_WORDS[lang] ?? [], ...REMOVE_WORDS[lang] ?? [], ...SEARCH_WORDS[lang] ?? [],
-    ...ADD_WORDS["en-US"], ...REMOVE_WORDS["en-US"], ...SEARCH_WORDS["en-US"],
+    ...(ADD_WORDS[lang] ?? []),
+    ...(REMOVE_WORDS[lang] ?? []),
+    ...(SEARCH_WORDS[lang] ?? []),
+    ...ADD_WORDS["en-US"],
+    ...REMOVE_WORDS["en-US"],
+    ...SEARCH_WORDS["en-US"],
   ];
   let result = text;
   for (const phrase of all) result = result.replace(phrase, " ");
-  result = result.replace(/\b(to|the|my|list|from|for|please|some|a|an|of)\b/g, " ");
+  result = result.replace(/\b(to|the|my|list|from|for|please|some|a|an|of|rupees|rs|rupaye)\b/g, " ");
   return result.replace(/\s+/g, " ").trim();
 }
 
@@ -159,7 +166,7 @@ export function parseTranscript(rawTranscript: string, lang: LangCode): ParsedCo
   return { action, matchedProduct, customName, quantity, query, priceFilter, rawTranscript };
 }
 
-/** The catalog summary sent to Gemini so it can match against real product ids instead of inventing its own. */
+/** The catalog summary sent to Gemini so it can match against real product ids with Indian Rupee prices. */
 export function catalogSummaryForPrompt(): string {
-  return catalog.map((p) => `${p.id}: "${p.name}" (${p.category}, $${p.price})`).join("\n");
+  return catalog.map((p) => `${p.id}: "${p.name}" (${p.category}, Rs. ${p.price})`).join("\n");
 }

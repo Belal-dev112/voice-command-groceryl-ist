@@ -72,7 +72,7 @@ Try saying:
   you'll hear it swap in almond milk automatically — that's the substitute
   feature)
 - "Remove bread"
-- "Find snacks under $3"
+- "Find snacks under Rs. 50"
 - "Clear my list"
 - Switch the language pill to हिंदी or Español and try "दूध जोड़ो" or "necesito pan"
 

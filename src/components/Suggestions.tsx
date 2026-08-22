@@ -51,7 +51,7 @@ export default function Suggestions() {
                     {s.product.name}
                   </span>
                   <span className="text-xs font-semibold text-emerald-400/90 font-mono ml-auto">
-                    ${s.product.price.toFixed(2)}
+                    Rs. {s.product.price}
                   </span>
                 </div>
 

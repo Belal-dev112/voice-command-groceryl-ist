@@ -37,7 +37,9 @@ export default function SearchResults({ query, priceFilter, onClose }: SearchRes
           </div>
           <h3 className="font-display font-semibold text-base text-white">
             Search Results {query ? <span className="text-emerald-400">&ldquo;{query}&rdquo;</span> : ""}
-            {priceFilter?.max ? <span className="text-xs text-white/50 ml-1.5">(Under ${priceFilter.max})</span> : ""}
+            {priceFilter?.max ? (
+              <span className="text-xs text-white/50 ml-1.5 font-mono">(Under Rs. {priceFilter.max})</span>
+            ) : null}
           </h3>
         </div>
         <button
@@ -56,7 +58,7 @@ export default function SearchResults({ query, priceFilter, onClose }: SearchRes
           </div>
           <p className="text-sm font-medium text-white/70">No matching items in catalog</p>
           <p className="text-xs text-white/40 mt-1 max-w-xs">
-            Say &ldquo;Add {query || "item"}&rdquo; to add it directly to your Miscellaneous list.
+            Say &ldquo;Add {query || "item"}&rdquo; or type it above to add it directly to Miscellaneous.
           </p>
         </div>
       ) : (
@@ -73,7 +75,7 @@ export default function SearchResults({ query, priceFilter, onClose }: SearchRes
                 <p className="font-medium text-sm text-white truncate">{p.name}</p>
                 <div className="flex items-center gap-2 mt-0.5">
                   <span className="text-xs font-semibold text-emerald-400 font-mono">
-                    ${p.price.toFixed(2)}
+                    Rs. {p.price}
                   </span>
                   <span className="text-[10px] text-white/40 px-2 py-0.5 rounded-full bg-white/5">
                     {p.category}
