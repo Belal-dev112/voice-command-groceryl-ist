@@ -1,9 +1,8 @@
 import { Product } from "@/types";
 
 /**
- * A curated, realistic grocery catalog with prices in Indian Rupees (Rs.).
- * Each product carries aliases in three languages so voice commands in English,
- * Hindi, or Spanish can all resolve to the same item.
+ * Curated grocery catalog with realistic Indian Rupee (Rs.) prices, multilingual aliases,
+ * and seasonal harvest months (1-12) for in-season recommendations.
  */
 export const catalog: Product[] = [
   {
@@ -87,7 +86,7 @@ export const catalog: Product[] = [
     category: "Produce",
     price: 160,
     emoji: "🍎",
-    seasonalMonths: [9, 10, 11, 12],
+    seasonalMonths: [8, 9, 10, 11, 12],
     aliases: {
       "en-US": ["apple", "apples", "fresh apples"],
       "hi-IN": ["सेब", "seb"],
@@ -100,6 +99,7 @@ export const catalog: Product[] = [
     category: "Produce",
     price: 60,
     emoji: "🍌",
+    seasonalMonths: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
     aliases: {
       "en-US": ["banana", "bananas"],
       "hi-IN": ["केला", "kela", "kele"],
@@ -112,7 +112,7 @@ export const catalog: Product[] = [
     category: "Produce",
     price: 85,
     emoji: "🍉",
-    seasonalMonths: [4, 5, 6, 7, 8],
+    seasonalMonths: [4, 5, 6, 7, 8, 9],
     aliases: {
       "en-US": ["watermelon"],
       "hi-IN": ["तरबूज", "tarbooj", "tarbuz"],
@@ -125,6 +125,7 @@ export const catalog: Product[] = [
     category: "Produce",
     price: 35,
     emoji: "🍅",
+    seasonalMonths: [1, 2, 3, 7, 8, 9, 10, 11, 12],
     aliases: {
       "en-US": ["tomato", "tomatoes"],
       "hi-IN": ["टमाटर", "tamatar"],
@@ -137,6 +138,7 @@ export const catalog: Product[] = [
     category: "Produce",
     price: 30,
     emoji: "🥔",
+    seasonalMonths: [1, 2, 3, 8, 9, 10, 11, 12],
     aliases: {
       "en-US": ["potato", "potatoes"],
       "hi-IN": ["आलू", "aloo", "aalu"],
@@ -149,6 +151,7 @@ export const catalog: Product[] = [
     category: "Produce",
     price: 45,
     emoji: "🧅",
+    seasonalMonths: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
     aliases: {
       "en-US": ["onion", "onions"],
       "hi-IN": ["प्याज", "pyaz", "pyaaj"],
@@ -245,6 +248,7 @@ export const catalog: Product[] = [
     category: "Beverages",
     price: 110,
     emoji: "🧃",
+    seasonalMonths: [11, 12, 1, 2, 3],
     aliases: {
       "en-US": ["orange juice", "juice"],
       "hi-IN": ["जूस", "juice", "santara juice"],
