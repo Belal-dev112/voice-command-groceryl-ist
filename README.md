@@ -1,59 +1,74 @@
 # 🛒 Voice Grocery — Voice-Controlled Shopping Assistant
 
-A fast, minimalist grocery shopping assistant built with Next.js and the Web Speech API. It recognizes natural voice commands in **English, Hindi (हिंदी), and Spanish (Español)**, auto-categorizes items, handles pricing in Indian Rupees (Rs.), provides seasonal/substitute recommendations, and works completely offline with an optional Gemini AI mode.
+An intelligent, voice-first grocery shopping platform built with a **Python Backend (FastAPI / NLP)** and a modern **React Frontend**. It understands natural conversational voice commands in **English, Hindi (हिंदी), and Spanish (Español)**, auto-categorizes items, handles Indian Rupee (Rs.) pricing, detects in-season harvests, and integrates Google Gemini AI with seamless offline rule-based fallbacks.
 
 🔗 **Live Demo:** [https://voice-command-groceryl-ist.vercel.app](https://voice-command-groceryl-ist.vercel.app)
 
 ---
 
+## 🏗️ Architecture & Interview Talking Points
+
+### 1. Backend Architecture (Python 3 & FastAPI)
+- **Framework:** Python 3 + FastAPI (`backend/main.py`)
+- **Natural Language Processing (`backend/nlp.py`):**
+  - **Rule-Based Engine:** Fast, zero-latency dictionary and regex pattern matching supporting English, Hindi, and Spanish intent resolution (`ADD`, `REMOVE`, `SEARCH`, `CLEAR`).
+  - **Multilingual Tokenizer & Alias Matcher:** Normalizes accents (Unicode NFD decomposition) and matches multi-word transliterated phrases (e.g. *"doodh"*, *"tamatar"*, *"leche"*).
+  - **Price Extraction:** Regular expressions tuned for Indian Rupees (`"under Rs. 50"`, `"50 se kam"`, `"between 50 and 100 rupees"`).
+  - **LLM Integration (Optional AI Mode):** Integrates Google Gemini (`gemini-1.5-flash`) via Python REST client. If the API key is missing or rate-limited, it silently falls back to Python's offline rule-based parser.
+- **Serverless API (`api/nlp.py`):** Deployed as a Python serverless endpoint for zero-cold-start cloud execution.
+
+### 2. Frontend Architecture
+- **Framework:** Next.js / React with Tailwind CSS.
+- **Audio & Speech Engine:** HTML5 Web Speech API (`webkitSpeechRecognition` and `SpeechSynthesis`) for real-time speech-to-text and audio feedback.
+- **State Management:** Reactive Store with browser `localStorage` persistence.
+
+---
+
 ## ✨ Features
 
-- 🎙️ **Multilingual Voice Recognition:** Add, remove, clear, or search grocery items by voice in English, Hindi, or Spanish.
-- 🍏 **Apple-Inspired Minimalist UI:** Frosted glass cards, smooth squircle corners, tactile quantity steppers, and a floating Dynamic Island voice control bar.
-- 📦 **Smart Auto-Categorization & Custom Items:** Catalog items are automatically grouped into Produce, Dairy & Eggs, Bakery, Pantry, Beverages, Snacks, etc. Custom or unrecognized items default directly to **Miscellaneous**.
-- 🇮🇳 **Indian Rupee (Rs.) Pricing & Price Filters:** Realistic grocery pricing and voice-based price filtering (e.g., *"find snacks under Rs. 50"*, *"items between 50 and 100 rupees"*).
-- 🔄 **Smart Recommendations:**
-  - **In-Season Picks:** Suggests fruits/vegetables currently in season.
-  - **Restock Reminders:** Tracks frequently purchased groceries.
-  - **Smart Substitutes:** Automatically suggests alternatives when an item is out of stock (e.g. Whole Milk → Almond Milk).
-- ✍️ **Quick Add Bar:** Quickly type custom groceries directly with a category picker without needing to use the mic.
-- ⚡ **Offline-First with Optional Gemini AI Mode:**
-  - **Default (Offline):** Instant rule-based dictionary & regex NLP engine running directly in the browser with zero latency and zero API dependencies.
-  - **AI Mode (Optional):** Add a free Google Gemini API key in Settings for richer conversational phrasing. Automatically falls back to offline parser on any timeout or rate limit.
+- 🎙️ **Multilingual Voice Commands:** Natural voice recognition in English, Hindi, and Spanish.
+- 🏪 **Interactive Market Catalog:** Browse all 27 grocery items with real-time Indian Rupee (Rs.) prices, category filters, and instant search.
+- 🌾 **Seasonal Harvest Tracker:** Automatically calculates and lists fresh farm produce in season for the current month.
+- 📦 **Smart Auto-Categorization & Custom Items:** Items automatically group into Produce, Dairy & Eggs, Bakery, Pantry, etc. Unrecognized items default to **Miscellaneous**.
+- 🔄 **Smart Recommendations:** Restock alerts based on purchase frequency and automatic out-of-stock substitutes (e.g., Whole Milk → Almond Milk).
+- 🍏 **Editorial Design:** Forest green botanical aesthetic, stone pill cards, and a floating Dynamic Island voice control bar.
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Framework:** Next.js 15 (App Router)
-- **UI & Styling:** React 19, Tailwind CSS v4, Lucide Icons
-- **Language:** TypeScript
-- **Voice & Audio:** Web Speech API (`webkitSpeechRecognition` & `SpeechSynthesis`)
-- **AI Engine (Optional):** `@google/generative-ai` (Gemini Flash)
-- **Persistence:** Browser `localStorage`
+| Layer | Technology | Purpose |
+|---|---|---|
+| **Backend** | **Python 3**, **FastAPI**, **Pydantic** | REST API, NLP Intent Engine & AI routing |
+| **AI / NLP** | **Regex / Dictionary NLP** + **Google Gemini** | Natural language phrase understanding |
+| **Frontend** | **React**, **Next.js**, **Tailwind CSS** | Responsive UI & client state |
+| **Voice** | **Web Speech API** | Browser-native speech recognition & TTS |
+| **Deployment** | **Vercel** (Python Serverless + Next.js) | Production hosting |
 
 ---
 
 ## 🚀 Getting Started
 
-### Prerequisites
-Make sure you have Node.js (v18+) installed.
-
-### Installation
-
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/Belal-dev112/voice-command-groceryl-ist.git
 cd voice-command-groceryl-ist
-npm install
 ```
 
-### Run Locally
-
+### 2. Run the Python Backend
 ```bash
+cd backend
+pip install -r requirements.txt
+python main.py
+```
+*The FastAPI backend will start at `http://localhost:8000` with interactive Swagger docs at `http://localhost:8000/docs`.*
+
+### 3. Run the Frontend
+```bash
+npm install
 npm run dev
 ```
-
-Open [http://localhost:3000](http://localhost:3000) in Chrome, Edge, or any browser supporting the Web Speech API and allow microphone permissions when prompted.
+*Open `http://localhost:3000` in Chrome or Edge and allow microphone permissions.*
 
 ---
 
@@ -70,36 +85,28 @@ Open [http://localhost:3000](http://localhost:3000) in Chrome, Edge, or any brow
 
 ---
 
-## 📁 Project Structure
+## 📁 Repository Structure
 
 ```
+├── backend/                       # Python Backend
+│   ├── main.py                    # FastAPI server & route handlers
+│   ├── nlp.py                     # Python Multilingual NLP Engine
+│   ├── catalog.py                 # Grocery catalog & Rs. prices in Python
+│   └── requirements.txt           # Python dependencies (FastAPI, uvicorn, pydantic)
+├── api/
+│   └── nlp.py                     # Python serverless handler for cloud deployment
 ├── src/
 │   ├── app/
-│   │   ├── api/nlp/route.ts       # Optional Gemini AI fallback route
-│   │   ├── globals.css            # Apple-style glassmorphism & design system
-│   │   ├── layout.tsx             # Root layout & Google Fonts
-│   │   └── page.tsx               # Main grocery dashboard
-│   ├── components/
-│   │   ├── SearchResults.tsx      # Voice search results card
-│   │   ├── SettingsPanel.tsx      # Gemini API key settings sheet
-│   │   ├── ShoppingList.tsx       # Grouped grocery list & steppers
-│   │   ├── Suggestions.tsx        # Smart grocery recommendation shelf
-│   │   └── VoiceButton.tsx        # Dynamic Island floating mic bar
-│   ├── data/
-│   │   └── catalog.ts             # Grocery items, aliases (EN/HI/ES), & Rs. prices
-│   ├── lib/
-│   │   ├── nlp.ts                 # Multilingual dictionary & regex parser
-│   │   ├── store.tsx              # Cart state & localStorage sync
-│   │   └── suggestions.ts         # Restock, seasonal & substitute logic
-│   └── types/
-│       ├── index.ts               # Core TypeScript interfaces & Category union
-│       └── speech.d.ts            # Web Speech API definitions
-├── vercel.json                    # Vercel deployment configuration
+│   │   ├── globals.css            # Botanical design system & styling
+│   │   ├── layout.tsx             # Root layout & typography
+│   │   └── page.tsx               # Main grocery application & tabs
+│   ├── components/                # React UI components
+│   └── data/                      # Client-side data definitions
+├── vercel.json                    # Deployment config
 └── package.json
 ```
 
 ---
 
 ## 📄 License
-
 MIT License. Open source and free to use.
