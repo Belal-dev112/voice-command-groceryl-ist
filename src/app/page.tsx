@@ -15,7 +15,6 @@ import {
   Plus,
   Trash2,
   Package,
-  Sparkles,
   Leaf,
   Volume2,
   Store,
@@ -218,7 +217,7 @@ export default function Home() {
                     {progressPercent}%
                   </span>
                   <span className="text-xs text-white/80 font-medium">
-                    {pickedUpCount} of {totalItemsCount} items picked
+                    {pickedUpCount} of {totalItemsCount} items picked ({totalQuantity} units)
                   </span>
                 </div>
                 {estimatedTotal > 0 && (
