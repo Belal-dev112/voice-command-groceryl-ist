@@ -21,17 +21,17 @@ export default function Suggestions() {
   if (suggestions.length === 0) return null;
 
   return (
-    <section className="mb-8">
-      <div className="flex items-center justify-between mb-3 px-1">
-        <h3 className="font-display font-semibold text-sm uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
-          <Sparkles className="w-3.5 h-3.5" /> Smart Grocery Picks
-        </h3>
-        <span className="text-[11px] text-white/40 font-medium">
-          {suggestions.length} recommendations
+    <section className="mb-6">
+      <div className="flex items-center justify-between mb-2.5 px-1">
+        <h4 className="font-editorial text-base italic text-[#dedbd2] flex items-center gap-1.5">
+          <Sparkles className="w-3.5 h-3.5 text-[#dedbd2]" /> Seasonal & Smart Picks
+        </h4>
+        <span className="text-[10px] uppercase tracking-wider text-white/50 font-medium">
+          Fresh in store
         </span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {suggestions.map((s, i) => {
           const isSeasonal = s.kind === "seasonal";
           const isSubstitute = s.kind === "substitute";
@@ -39,32 +39,24 @@ export default function Suggestions() {
           return (
             <div
               key={`${s.product.id}-${i}`}
-              className="apple-card apple-card-hover p-3.5 flex items-center gap-3.5 relative overflow-hidden group"
+              className="stone-pill p-3 flex items-center gap-2.5 relative group"
             >
-              <div className="w-12 h-12 rounded-2xl bg-white/[0.06] border border-white/[0.08] flex items-center justify-center text-2xl shrink-0 shadow-inner group-hover:scale-105 transition-transform duration-200">
+              <div className="w-10 h-10 rounded-xl bg-black/5 flex items-center justify-center text-xl shrink-0">
                 {s.product.emoji}
               </div>
 
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 mb-0.5">
-                  <span className="font-medium text-sm text-white truncate">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-xs text-[#202922] truncate">
                     {s.product.name}
                   </span>
-                  <span className="text-xs font-semibold text-emerald-400/90 font-mono ml-auto">
+                  <span className="text-xs font-bold text-[#202922] font-mono ml-1">
                     Rs. {s.product.price}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-1.5">
-                  <span
-                    className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
-                      isSeasonal
-                        ? "bg-amber-500/10 text-amber-300 border-amber-500/20"
-                        : isSubstitute
-                        ? "bg-rose-500/10 text-rose-300 border-rose-500/20"
-                        : "bg-emerald-500/10 text-emerald-300 border-emerald-500/20"
-                    }`}
-                  >
+                <div className="flex items-center gap-1 mt-0.5">
+                  <span className="text-[9px] uppercase tracking-wider font-semibold text-[#202922]/70 flex items-center gap-1 truncate">
                     {isSeasonal ? (
                       <Calendar className="w-2.5 h-2.5" />
                     ) : isSubstitute ? (
@@ -79,10 +71,10 @@ export default function Suggestions() {
 
               <button
                 onClick={() => addProduct(s.product, 1, "suggestion")}
-                className="w-8 h-8 shrink-0 rounded-full bg-white/10 hover:bg-emerald-500 hover:text-black text-white flex items-center justify-center transition-all hover:scale-105 active:scale-95 border border-white/10 hover:border-transparent"
+                className="w-7 h-7 shrink-0 rounded-lg bg-[#2b3d32] hover:bg-[#3d5546] text-white flex items-center justify-center transition-all hover:scale-105 active:scale-95"
                 aria-label={`Add ${s.product.name}`}
               >
-                <Plus className="w-4 h-4 stroke-[2.5]" />
+                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
               </button>
             </div>
           );

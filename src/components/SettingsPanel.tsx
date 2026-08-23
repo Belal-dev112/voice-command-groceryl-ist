@@ -46,33 +46,33 @@ export default function SettingsPanel({ apiKey, onSave, onClose }: SettingsPanel
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="w-full max-w-lg apple-card p-6 sm:p-7 relative border border-white/10 shadow-2xl bg-[#121915]/95">
-        <div className="flex items-center justify-between pb-4 mb-4 border-b border-white/[0.08]">
+      <div className="w-full max-w-lg forest-panel p-6 sm:p-7 relative border border-white/15 shadow-2xl bg-[#1d2b22]/95">
+        <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/10">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+            <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-[#dedbd2]">
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-display font-semibold text-lg text-white">AI Voice Engine</h3>
-              <p className="text-xs text-white/50">Gemini-powered natural language processing</p>
+              <h3 className="font-editorial text-xl italic text-white">AI Voice Engine</h3>
+              <p className="text-[11px] text-white/60 font-sans">Gemini-powered Natural Language Processing</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/60 hover:text-white transition-colors"
+            className="w-7 h-7 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/60 hover:text-white transition-colors"
             aria-label="Close settings"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <p className="text-xs sm:text-sm text-white/70 mb-5 leading-relaxed">
-          Your voice assistant comes configured with Google Gemini for rich conversational understanding. If missing or rate-limited, it silently falls back to the ultra-fast offline parser.
+        <p className="text-xs sm:text-sm text-white/70 mb-5 leading-relaxed font-sans">
+          Your assistant uses Google Gemini for richer natural phrasing. If missing or rate-limited, it silently falls back to the fast offline parser.
         </p>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-medium text-white/60 mb-2">
+            <label className="block text-xs font-medium text-white/70 mb-2 font-sans">
               Gemini API Key
             </label>
             <div className="flex gap-2">
@@ -81,11 +81,11 @@ export default function SettingsPanel({ apiKey, onSave, onClose }: SettingsPanel
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 placeholder="Paste API Key (e.g. AIzaSy... or AQ....)"
-                className="flex-1 px-4 py-2.5 bg-black/40 border border-white/10 rounded-2xl text-xs sm:text-sm text-white placeholder:text-white/25 outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/20 transition-all font-mono"
+                className="flex-1 px-4 py-2.5 bg-black/30 border border-white/15 rounded-xl text-xs sm:text-sm text-white placeholder:text-white/30 outline-none focus:border-[#dedbd2] transition-all font-mono"
               />
               <button
                 onClick={handleSave}
-                className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold rounded-2xl text-xs sm:text-sm transition-all flex items-center gap-1.5 shadow-lg shadow-emerald-500/20 active:scale-95"
+                className="px-5 py-2.5 bg-[#50775a] hover:bg-[#5d8b69] text-white font-semibold rounded-xl text-xs sm:text-sm transition-all flex items-center gap-1.5 active:scale-95"
               >
                 {saved ? <Check className="w-4 h-4" /> : null}
                 {saved ? "Saved" : "Save"}
@@ -96,7 +96,7 @@ export default function SettingsPanel({ apiKey, onSave, onClose }: SettingsPanel
                     setDraft("");
                     onSave("");
                   }}
-                  className="px-3 py-2.5 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-2xl transition-colors"
+                  className="px-3 py-2.5 text-red-300 hover:bg-red-500/10 rounded-xl transition-colors"
                   title="Clear key and use offline parser only"
                   aria-label="Clear API key"
                 >
@@ -106,8 +106,8 @@ export default function SettingsPanel({ apiKey, onSave, onClose }: SettingsPanel
             </div>
           </div>
 
-          <div className="pt-2 flex items-center justify-between text-xs text-white/40 border-t border-white/[0.06]">
-            <span className="flex items-center gap-1.5 text-emerald-400/80">
+          <div className="pt-2 flex items-center justify-between text-xs text-white/50 border-t border-white/10 font-sans">
+            <span className="flex items-center gap-1 text-[#dedbd2]">
               <ShieldCheck className="w-3.5 h-3.5" /> Stored locally in browser
             </span>
             <a
